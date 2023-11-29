@@ -38,6 +38,14 @@ type Move struct {
 	end Square
 }
 
+func NewMove(piece *Piece, start Square, end Square) *Move {
+	return &Move{
+		piece: piece,
+		start: start,
+		end: end,
+	}
+}
+
 type IPiece interface{
 	CalcAvailableMoves() []Square
 	Move(i Square, j Square)
@@ -266,6 +274,7 @@ func (piece *Piece) HandlePieceMovement( destination Square) {
 			// Move the piece to the destination square
 			piece.pos = destination
 			fmt.Println("Piece moved to ", destination)
+			// Return from the function
 			return
 		}
 	}

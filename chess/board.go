@@ -72,3 +72,29 @@ func (b *Board) PrintBoard() {
 		fmt.Print("\n")
 	}
 }
+
+func (b *Board) UpdateBoard(move Move) {
+	pieceDestination := b.GetPiece(move.end.file, move.end.rank)
+	if pieceDestination == nil {
+		move.piece.HandlePieceMovement(move.end)
+	} else if pieceDestination != nil && move.piece.color != pieceDestination.color{
+		// capture destination piece
+		b.RemovePiece(pieceDestination)
+		move.piece.HandlePieceMovement(move.end)
+	} else {
+		fmt.Println("Move impossible !")
+		return
+	}
+	// b.CalcIsChecked(move)
+}
+
+func (b *Board) GetPieceByRepr(repr string, pos Square) *Piece {
+	for _, piece := range b.Pieces {
+		// fmt.Println("Checking piece ", piece.repr, piece.pos)
+		if piece.repr == repr && piece.pos == pos {
+			return piece
+		}
+	}
+	return nil
+}
+

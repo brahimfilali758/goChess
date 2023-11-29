@@ -1,4 +1,4 @@
-package main
+package chess
 
 import (
 	"fmt"
@@ -30,6 +30,12 @@ func NewSquare(file int, rank int) *Square {
 		file: file,
 		rank: rank,
 	}
+}
+
+type Move struct {
+	piece *Piece
+	start Square
+	end Square
 }
 
 type IPiece interface{
@@ -89,10 +95,132 @@ func (pawn *Pawn) CalcAvailableMoves() []Square {
 	return legalMoves
 }
 
+func (pawn *Pawn) GetAvailableStringMoves() []Square {
+	m = make(map[string]int)
+
+	for _, move := range pawn.Piece.availableMoves :
+		
+}
 
 func (pawn *Pawn) Move(destination Square) {
 	
 }
+
+
+type Knight struct {
+	*Piece
+}
+
+func NewKnight(pos Square, color Color) *Knight {
+	// NewKnight creates a new Knight with the given position and color.
+	//
+	// pos: The position of the Knight on the chessboard.
+	// color: The color of the Knight (either White or Black).
+	// Returns a pointer to the newly created Knight.
+	p := &Knight{
+		Piece: &Piece{
+			color: color,
+			pos:   pos,
+		},
+	}
+	// p.Piece.availableMoves = p.CalcAvailableMoves()
+	return p
+}
+
+
+func (knight *Knight) CalcAvailableMoves() []Square {
+	// CalcAvailableMoves calculates the available legal moves for the Knight.
+	//
+	// It does not take any parameters.
+	// It returns a slice of Square.
+	legalMoves := make([]Square, 0)
+}
+
+func (knight *Knight) Move(destination Square) {
+	
+}
+
+
+type Bishop struct {
+	*Piece
+}
+
+func NewBishop(pos Square, color Color) *Bishop {
+	// NewBishop creates a new Bishop with the given position and color.
+	//
+	// pos: The position of the Bishop on the chessboard.
+	// color: The color of the Bishop (either White or Black).
+	// Returns a pointer to the newly created Bishop.
+	p := &Bishop{
+		Piece: &Piece{
+			color: color,
+			pos:   pos,
+		},
+	}
+	// p.Piece.availableMoves = p.CalcAvailableMoves()
+	return p
+}
+
+type Rook struct {
+	*Piece
+}
+
+func NewRook(pos Square, color Color) *Rook {
+	// NewRook creates a new Rook with the given position and color.
+	//
+	// pos: The position of the Rook on the chessboard.
+	// color: The color of the Rook (either White or Black).
+	// Returns a pointer to the newly created Rook.
+	p := &Rook{
+		Piece: &Piece{
+			color: color,
+			pos:   pos,
+		},
+	}
+	// p.Piece.availableMoves = p.CalcAvailableMoves()
+	return p
+}
+
+type Queen struct {
+	*Piece
+}
+
+func NewQueen(pos Square, color Color) *Queen {
+	// NewQueen creates a new Queen with the given position and color.
+	//
+	// pos: The position of the Queen on the chessboard.
+	// color: The color of the Queen (either White or Black).
+	// Returns a pointer to the newly created Queen.
+	p := &Queen{
+		Piece: &Piece{
+			color: color,
+			pos:   pos,
+		},
+	}
+	// p.Piece.availableMoves = p.CalcAvailableMoves()
+	return p
+}
+
+type King struct {
+	*Piece
+}
+
+func NewKing(pos Square, color Color) *King {
+	// NewKing creates a new King with the given position and color.
+	//
+	// pos: The position of the King on the chessboard.
+	// color: The color of the King (either White or Black).
+	// Returns a pointer to the newly created King.
+	p := &King{
+		Piece: &Piece{
+			color: color,
+			pos:   pos,
+		},
+	}
+	// p.Piece.availableMoves = p.CalcAvailableMoves()
+	return p
+}
+
 
 
 func (piece *Piece) HandlePieceMovement( destination Square) {
@@ -116,13 +244,5 @@ func (piece *Piece) HandlePieceMovement( destination Square) {
 	// ...
 }
 
-// Temporary main functin for testing purposes
-func main () {
- 	p := NewPawn(Square{1, 1}, white)
-	fmt.Println("pawn is ", p)
-	fmt.Println("pawn squares are ", p.Piece.availableMoves)
-	p.HandlePieceMovement(p.availableMoves[1])
-	p.CalcAvailableMoves()
-	fmt.Println("pawn squares are ", p.Piece.availableMoves)
-}
+
 

@@ -21,5 +21,8 @@ func NewGame(p1 *Player, p2 *Player) *Game {
 		p1: p1,
 		p2: p2,
 	}
+}
 
+func (g *Game) GetBorad() *Board {
+	return g.board
 }

@@ -12,8 +12,8 @@ const (
 	rook
 	queen
 	king
-	white 
-	black
+	White 
+	Black
 )
 
 type PieceType uint16
@@ -47,6 +47,7 @@ type Piece struct {
 	availableMoves []Square
 	color Color
 	pos Square
+	repr string
 }
 
 type Pawn struct {
@@ -66,6 +67,11 @@ func NewPawn(pos Square, color Color) *Pawn {
 			pos:   pos,
 		},
 	}
+	if color == White {
+		p.repr = "♙"
+	} else if color == Black {
+		p.repr = "♟"
+	}
 	p.Piece.availableMoves = p.CalcAvailableMoves()
 	return p
 }
@@ -79,7 +85,7 @@ func (pawn *Pawn) CalcAvailableMoves() []Square {
 	legalMoves := make([]Square, 0)
 	var increment int
 	
-	if pawn.Piece.color == black {
+	if pawn.Piece.color == Black {
 		increment = -1
 	} else {
 		increment = 1 
@@ -96,10 +102,8 @@ func (pawn *Pawn) CalcAvailableMoves() []Square {
 }
 
 func (pawn *Pawn) GetAvailableStringMoves() []Square {
-	m = make(map[string]int)
-
-	for _, move := range pawn.Piece.availableMoves :
-		
+	// m := make(map[string]int)
+	return 	[]Square{}
 }
 
 func (pawn *Pawn) Move(destination Square) {
@@ -123,6 +127,11 @@ func NewKnight(pos Square, color Color) *Knight {
 			pos:   pos,
 		},
 	}
+	if color == White {
+		p.repr = "♘"
+	} else if color == Black {
+		p.repr = "♞"
+	}
 	// p.Piece.availableMoves = p.CalcAvailableMoves()
 	return p
 }
@@ -134,6 +143,7 @@ func (knight *Knight) CalcAvailableMoves() []Square {
 	// It does not take any parameters.
 	// It returns a slice of Square.
 	legalMoves := make([]Square, 0)
+	return legalMoves
 }
 
 func (knight *Knight) Move(destination Square) {
@@ -157,6 +167,11 @@ func NewBishop(pos Square, color Color) *Bishop {
 			pos:   pos,
 		},
 	}
+	if color == White {
+		p.repr = "♗"
+	} else if color == Black {
+		p.repr = "♝"
+	}
 	// p.Piece.availableMoves = p.CalcAvailableMoves()
 	return p
 }
@@ -176,6 +191,11 @@ func NewRook(pos Square, color Color) *Rook {
 			color: color,
 			pos:   pos,
 		},
+	}
+	if color == White {
+		p.repr = "♖"
+	} else if color == Black {
+		p.repr = "♜"
 	}
 	// p.Piece.availableMoves = p.CalcAvailableMoves()
 	return p
@@ -197,6 +217,11 @@ func NewQueen(pos Square, color Color) *Queen {
 			pos:   pos,
 		},
 	}
+	if color == White {
+		p.repr = "♕"
+	} else if color == Black {
+		p.repr = "♛"
+	}
 	// p.Piece.availableMoves = p.CalcAvailableMoves()
 	return p
 }
@@ -216,6 +241,11 @@ func NewKing(pos Square, color Color) *King {
 			color: color,
 			pos:   pos,
 		},
+	}
+	if color == White {
+		p.repr = "♔"
+	} else if color == Black {
+		p.repr = "♚"
 	}
 	// p.Piece.availableMoves = p.CalcAvailableMoves()
 	return p

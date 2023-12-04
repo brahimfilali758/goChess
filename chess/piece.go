@@ -20,15 +20,22 @@ type PieceType uint16
 
 type Color uint8
 
-type Square struct {
-	file int
-	rank int
+func (c Color) String() string {
+	if c == White {
+		return "white"
+	}
+	return "black"
 }
 
-func NewSquare(file int, rank int) *Square {	
+type Square struct {
+	rank int
+	file int
+}
+
+func NewSquare(rank int, file int) *Square {	
 	return &Square{
-		file: file,
 		rank: rank,
+		file: file,
 	}
 }
 
@@ -63,6 +70,10 @@ type Pawn struct {
 }
 
 
+func (p *Piece) String() string {
+	return p.repr + " " + p.color.String() + fmt.Sprintf("(%d, %d)", p.pos.rank, p.pos.file)
+}
+
 func NewPawn(pos Square, color Color) *Pawn {
 	// NewPawn creates a new Pawn with the given position and color.
 	//
@@ -95,15 +106,24 @@ func (pawn *Pawn) CalcAvailableMoves() []Square {
 	
 	if pawn.Piece.color == Black {
 		increment = -1
+		// Starting position
+		if pawn.Piece.pos.rank == 7 {
+			legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 2*increment, pawn.Piece.pos.file})
+		}
+		legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 1*increment, pawn.Piece.pos.file})
+		legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 1*increment, pawn.Piece.pos.file + 1*increment})
+		legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 1*increment, pawn.Piece.pos.file - 1*increment})
 	} else {
 		increment = 1 
+		// Starting position
+		if  pawn.Piece.pos.rank == 2 {
+			legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank+2*increment , pawn.Piece.pos.file})
+		}
+		legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 1*increment, pawn.Piece.pos.file})
+		legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 1*increment, pawn.Piece.pos.file + 1*increment})
+		legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 1*increment, pawn.Piece.pos.file - 1*increment})
 	}
 
-	if pawn.Piece.pos.file == 1 && pawn.Piece.pos.rank == 1 {
-		legalMoves = append(legalMoves, Square{pawn.Piece.pos.file, pawn.Piece.pos.rank + 2*increment})
-	}
-	legalMoves = append(legalMoves, Square{pawn.Piece.pos.file, pawn.Piece.pos.rank + 1*increment})
-	legalMoves = append(legalMoves, Square{pawn.Piece.pos.file + 1*increment, pawn.Piece.pos.rank + 1*increment})
 
 	pawn.Piece.availableMoves = legalMoves
 	return legalMoves
@@ -269,6 +289,7 @@ func (piece *Piece) HandlePieceMovement( destination Square) {
 	// available moves of the piece. If a valid move is found, the piece's position is updated
 	// to the destination square and the function returns. If the destination is not a valid
 	// Check if the destination is a valid move for the piece
+	fmt.Println("Piece available moves ", piece.availableMoves)
 	for _, move := range piece.availableMoves {
 		if move == destination {
 			// Move the piece to the destination square
@@ -280,7 +301,7 @@ func (piece *Piece) HandlePieceMovement( destination Square) {
 	}
 	
 	// If the destination is not a valid move, handle the error or invalid move here
-	// ...
+	fmt.Println("Invalid move")
 }
 
 

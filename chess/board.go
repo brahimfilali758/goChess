@@ -40,7 +40,7 @@ func (b *Board) RemovePiece(p *Piece) {
 // get a piece from the board
 func (b *Board) GetPiece(i int, j int) *Piece {
 	for _, piece := range b.Pieces {
-		if piece.pos.file == i && piece.pos.rank == j {
+		if piece.pos.rank == i && piece.pos.file == j {
 			return piece
 		}
 	}
@@ -60,11 +60,11 @@ func (b *Board) CalcIsChecked(move Move) {
 }
 
 func (b *Board) PrintBoard() {
-	for i := 7; i >= 0; i-- {
-		for j := 0; j < 8; j++ {
+	for i := 8; i > 0; i-- {
+		for j := 1; j <= 8; j++ {
 			piece := b.GetPiece(i, j)
 			if piece != nil {
-				fmt.Print(piece.repr)
+				fmt.Printf(piece.repr)
 			} else {
 				fmt.Print("-")
 			}
@@ -73,11 +73,15 @@ func (b *Board) PrintBoard() {
 	}
 }
 
+
 func (b *Board) UpdateBoard(move Move) {
-	pieceDestination := b.GetPiece(move.end.file, move.end.rank)
+	pieceDestination := b.GetPiece(move.end.rank, move.end.file)
+	fmt.Println("Move is , ", move, " and destination is ", pieceDestination)
 	if pieceDestination == nil {
+		fmt.Println("Move done with destination square empty")
 		move.piece.HandlePieceMovement(move.end)
 	} else if pieceDestination != nil && move.piece.color != pieceDestination.color{
+		fmt.Println("Move done with capture")
 		// capture destination piece
 		b.RemovePiece(pieceDestination)
 		move.piece.HandlePieceMovement(move.end)

@@ -20,8 +20,8 @@ func main() {
 	var endrank int
 	var endfile int
 	m := make(map[string]string)
-	m["p"] = "♟"
-	m["P"]= "♙"
+	m["p"] = "♙"
+	m["P"]=  "♟"
 	m["r"] = "♜"
 	m["R"] = "♖"
 	m["n"] = "♞"
@@ -35,23 +35,26 @@ func main() {
 
 
 	for {
-		fmt.Println("Enter piece")
-		fmt.Scanln(&p)
-		fmt.Println("Enter startrank startfile endrank endfile")
-		fmt.Scanf("%d %d %d %d", &startrank, &startfile, &endrank, &endfile)
-		pieceToMove := board.GetPieceByRepr(m[p], *chess.NewSquare(int(startrank), int(startfile)))
-		if pieceToMove != nil {
-			fmt.Println("Piece Found !!")
-			move := chess.NewMove(pieceToMove, *chess.NewSquare(int(startrank), int(startfile)), *chess.NewSquare(int(endrank), int(endfile)))
-			board.UpdateBoard(*move)
-			board.PrintBoard()
-			i++
-			// clear the screen
-			fmt.Print("\033[H\033[2J")
-			board.PrintBoard()
-		} else {
-			fmt.Println("Piece not found !!")
-		}
+		p , startrank, startfile, endrank, endfile = "", 0, 0, 0, 0
+		fmt.Println("Enter piece startrank startfile endrank endfile\n")
+		fmt.Scanf("%s %d %d %d %d",&p, &startrank, &startfile, &endrank, &endfile)
+		if p != "" && startrank != 0 && startfile != 0 && endrank != 0 && endfile != 0 {
+			pieceToMove := board.GetPieceByRepr(m[p], *chess.NewSquare(int(startrank), int(startfile)))
+			fmt.Println(pieceToMove)
+			if pieceToMove != nil {
+				fmt.Println("Piece Found !!")
+				move := chess.NewMove(pieceToMove, *chess.NewSquare(int(startrank), int(startfile)), *chess.NewSquare(int(endrank), int(endfile)))
+				board.UpdateBoard(*move)
+				board.PrintBoard()
+				i++
+				// clear the screen
+				// fmt.Print("\033[H\033[2J")
+				// board.PrintBoard()
+			} else {
+				fmt.Println("Piece not found !!")
+			}
+		} 
+		
 	}
 }
 

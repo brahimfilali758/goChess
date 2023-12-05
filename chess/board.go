@@ -75,6 +75,9 @@ func (b *Board) PrintBoard() {
 
 
 func (b *Board) UpdateBoard(move Move) {
+	// Update piece available moves with board
+	move.piece.CalcaLegalMoves(b)
+	fmt.Println("Piece ", move.piece.repr , " available moves are : ", move.piece.availableMoves)
 	pieceDestination := b.GetPiece(move.end.rank, move.end.file)
 	fmt.Println("Move is , ", move, " and destination is ", pieceDestination)
 	if pieceDestination == nil {

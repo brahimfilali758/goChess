@@ -39,6 +39,13 @@ func NewSquare(rank int, file int) *Square {
 	}
 }
 
+func (s *Square) InBoard() bool {
+	if s.rank < 1 || s.rank > 8 || s.file < 1 || s.file > 8 {
+		return false
+	}
+	return true
+}
+
 type Move struct {
 	piece *Piece
 	start Square
@@ -55,7 +62,7 @@ func NewMove(piece *Piece, start Square, end Square) *Move {
 
 type IPiece interface{
 	CalcAvailableMoves() []Square
-	Move(i Square, j Square)
+	CalcaLegalMoves(b *Board) []Square
 }
 
 type Piece struct {
@@ -63,6 +70,7 @@ type Piece struct {
 	color Color
 	pos Square
 	repr string
+	jumps bool
 }
 
 type Pawn struct {
@@ -84,6 +92,7 @@ func NewPawn(pos Square, color Color) *Pawn {
 		Piece: &Piece{
 			color: color,
 			pos:   pos,
+			jumps: false,
 		},
 	}
 	if color == White {
@@ -103,7 +112,7 @@ func (pawn *Pawn) CalcAvailableMoves() []Square {
 	// It returns a slice of Square.
 	legalMoves := make([]Square, 0)
 	var increment int
-	
+
 	if pawn.Piece.color == Black {
 		increment = -1
 		// Starting position
@@ -123,7 +132,6 @@ func (pawn *Pawn) CalcAvailableMoves() []Square {
 		legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 1*increment, pawn.Piece.pos.file + 1*increment})
 		legalMoves = append(legalMoves, Square{pawn.Piece.pos.rank + 1*increment, pawn.Piece.pos.file - 1*increment})
 	}
-
 
 	pawn.Piece.availableMoves = legalMoves
 	return legalMoves
@@ -160,7 +168,7 @@ func NewKnight(pos Square, color Color) *Knight {
 	} else if color == Black {
 		p.repr = "♞"
 	}
-	// p.Piece.availableMoves = p.CalcAvailableMoves()
+	p.Piece.availableMoves = p.CalcAvailableMoves()
 	return p
 }
 
@@ -171,6 +179,17 @@ func (knight *Knight) CalcAvailableMoves() []Square {
 	// It does not take any parameters.
 	// It returns a slice of Square.
 	legalMoves := make([]Square, 0)
+	for rank := -2; rank <= 2; rank += 4 {
+		for file := -1; file <= 1; file += 2 {
+			legalMoves = append(legalMoves, Square{knight.Piece.pos.rank + rank, knight.Piece.pos.file + file})
+		}
+	}
+	for rank := -1; rank <= 1; rank += 2 {
+		for file := -2; file <= 2; file += 4 {
+			legalMoves = append(legalMoves, Square{knight.Piece.pos.rank + rank, knight.Piece.pos.file + file})
+		}
+	}
+	knight.Piece.availableMoves = legalMoves
 	return legalMoves
 }
 
@@ -225,8 +244,24 @@ func NewRook(pos Square, color Color) *Rook {
 	} else if color == Black {
 		p.repr = "♜"
 	}
-	// p.Piece.availableMoves = p.CalcAvailableMoves()
+	p.Piece.availableMoves = p.CalcAvailableMoves()
 	return p
+}
+
+func (r *Rook) CalcAvailableMoves() []Square {
+	// CalcAvailableMoves calculates the available legal moves for the Rook.
+	//
+	// It does not take any parameters.
+	// It returns a slice of Square.
+	legalMoves := make([]Square, 0)
+	for file := 1; file < 9; file++ {
+		legalMoves = append(legalMoves, Square{r.Piece.pos.rank, file})
+	}
+	for rank := 1; rank < 9; rank++ {
+		legalMoves = append(legalMoves, Square{rank, r.Piece.pos.file})
+	}
+	r.Piece.availableMoves = legalMoves
+	return legalMoves
 }
 
 type Queen struct {
@@ -304,5 +339,18 @@ func (piece *Piece) HandlePieceMovement( destination Square) {
 	fmt.Println("Invalid move")
 }
 
-
+func (p *Piece) CalcaLegalMoves(b *Board) {
+	fmt.Println("CalcaLegalMoves with length ", len(p.availableMoves), " and ", p.availableMoves)
+	legalMoves := make([]Square, 0)
+	for _, square := range p.availableMoves {
+		if square.InBoard() && (b.GetPiece(square.rank, square.file) == nil || b.GetPiece(square.rank, square.file).color != p.color) {
+			fmt.Println("NOT removing square ", square)
+			legalMoves = append(legalMoves, square)
+		} else {
+			fmt.Println("removing square ", square)
+		}
+	}
+	p.availableMoves = legalMoves
+	fmt.Println("CalcaLegalMoves After with length ", len(p.availableMoves), " and ", p.availableMoves)
+}
 

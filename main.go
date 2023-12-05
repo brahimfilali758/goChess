@@ -20,8 +20,8 @@ func main() {
 	var endrank int
 	var endfile int
 	m := make(map[string]string)
-	m["p"] = "♙"
-	m["P"]=  "♟"
+	m["p"] = "♟"
+	m["P"]=  "♙"
 	m["r"] = "♜"
 	m["R"] = "♖"
 	m["n"] = "♞"

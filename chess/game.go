@@ -15,6 +15,7 @@ type Game struct {
 // create a new game
 func NewGame(p1 *Player, p2 *Player) *Game {
 	fen_str := "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+	// fen_str := "rnbqkbnr/pppp3p/5pp1/4p3/4PPPP/8/PPPP4/RNBQKBNR"
 	return &Game{
 		uuid: uuid.New().String(),
 		board: GenerateBoardFromFen(fen_str),

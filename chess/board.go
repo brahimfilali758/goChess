@@ -1,8 +1,24 @@
 package chess
 
 import (
-	"fmt"	
+	"fmt"
 )
+
+
+var m  = map[string]string {
+	"p": "♟",
+	"P": "♙",
+	"r": "♜",
+	"R": "♖",
+	"n": "♞",
+	"N": "♘",
+	"b": "♝",
+	"B": "♗",
+	"q": "♛",
+	"Q": "♕",
+	"k": "♚",
+	"K": "♔",
+}
 
 type Board struct {
 	// The pieces on the board
@@ -47,12 +63,23 @@ func (b *Board) GetPiece(i int, j int) *Piece {
 	return nil
 }
 
-func (b *Board) CalcIsChecked(move Move) {
-	if move.piece.color == White {
+func (b *Board) GetPiecePosition(repr string) []Square {
+	positions := []Square{}
+	for _, piece := range b.Pieces {
+		if piece.repr == repr {
+			positions = append(positions, piece.pos)
+		}
+	}
+	return positions
+}
+
+func (b *Board) CalcIsChecked(move *Move) {
+	color := move.piece.color
+	if color == White {
 		if move.end == b.blackKing.pos {
 			b.isChecked = true
 		}
-	} else if move.piece.color == Black {
+	} else if color == Black {
 		if move.end == b.whiteKing.pos {
 			b.isChecked = true
 		}
@@ -64,7 +91,7 @@ func (b *Board) PrintBoard() {
 		for j := 1; j <= 8; j++ {
 			piece := b.GetPiece(i, j)
 			if piece != nil {
-				fmt.Printf(piece.repr)
+				fmt.Printf(m[piece.repr])
 			} else {
 				fmt.Print("-")
 			}
@@ -76,23 +103,25 @@ func (b *Board) PrintBoard() {
 
 func (b *Board) UpdateBoard(move Move) {
 	// Update piece available moves with board
-	move.piece.CalcaLegalMoves(b)
-	fmt.Println("Piece ", move.piece.repr , " available moves are : ", move.piece.availableMoves)
 	pieceDestination := b.GetPiece(move.end.rank, move.end.file)
-	fmt.Println("Move is , ", move, " and destination is ", pieceDestination)
+
+	// fmt.Println("Move is , ", move, " and destination is ", pieceDestination)
 	if pieceDestination == nil {
-		fmt.Println("Move done with destination square empty")
+		// fmt.Println("Move done with destination square empty")
 		move.piece.HandlePieceMovement(move.end)
-	} else if pieceDestination != nil && move.piece.color != pieceDestination.color{
-		fmt.Println("Move done with capture")
-		// capture destination piece
-		b.RemovePiece(pieceDestination)
-		move.piece.HandlePieceMovement(move.end)
-	} else {
-		fmt.Println("Move impossible !")
 		return
-	}
-	// b.CalcIsChecked(move)
+	} else {
+		if move.piece.color != pieceDestination.color{
+			fmt.Println("Move done with capture")
+			// capture destination piece
+			b.RemovePiece(pieceDestination)
+			move.piece.HandlePieceMovement(move.end)
+			return
+		} else {
+			fmt.Println("Move impossible !") 
+			return
+		}
+	} 
 }
 
 func (b *Board) GetPieceByRepr(repr string, pos Square) *Piece {
@@ -104,4 +133,73 @@ func (b *Board) GetPieceByRepr(repr string, pos Square) *Piece {
 	}
 	return nil
 }
+
+func (b *Board) Limits(pos Square, color Color) []Square {
+	// fmt.Println("Checking limits for ", pos, color)
+	emptySquares := make([]Square, 0)
+	
+	for i := pos.file+1; i <= 8; i++ {
+		pOnBoard:= b.GetPiece(pos.rank, i)
+		if pOnBoard == nil {
+			emptySquares = append(emptySquares, Square{pos.rank, i})
+		} else{
+			if pOnBoard.color != color {
+				emptySquares = append(emptySquares, Square{pos.rank, i})
+				break
+			} else if pOnBoard.color == color{
+				break
+			}
+		} 
+	}
+	
+	for i := pos.file-1; i >= 1; i-- {
+		pOnBoard:= b.GetPiece(pos.rank, i)
+		if pOnBoard == nil {
+			emptySquares = append(emptySquares, Square{pos.rank, i})
+		} else {
+			if pOnBoard.color != color {
+				emptySquares = append(emptySquares, Square{pos.rank, i})
+				break
+			} else if pOnBoard.color == color{
+				break
+			}
+		} 
+	}
+	
+	for i := pos.rank+1; i <= 8; i++ {
+		// fmt.Println("i is ", i)
+		pOnBoard:= b.GetPiece(i, pos.file)
+		// fmt.Println("piece on board is ", pOnBoard)
+		if pOnBoard == nil {
+			emptySquares = append(emptySquares, Square{i, pos.file})
+			// fmt.Println("empty square in " , i , pos.file)
+		} else {
+			if pOnBoard.color != color {
+				emptySquares = append(emptySquares, Square{i, pos.file})
+				break
+			} else if pOnBoard.color == color{
+				// fmt.Println("break in " , i , pos.file, " with ", pOnBoard)
+				break
+			}
+		} 
+	}
+	
+	for i := pos.rank-1; i >= 1; i-- {
+		pOnBoard:= b.GetPiece(i, pos.file)
+		if  pOnBoard == nil {
+			emptySquares = append(emptySquares, Square{i, pos.file})
+		} else {
+			if pOnBoard.color != color {
+				emptySquares = append(emptySquares, Square{i, pos.file})
+				break
+			} else if pOnBoard.color == color{
+				break
+			}
+		} 
+	}
+	// fmt.Println("empty squares are ", emptySquares)
+	
+	return emptySquares
+}
+
 

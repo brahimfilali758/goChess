@@ -2,7 +2,6 @@ package chess
 
 import (
 	"fmt"
-
 )
 
 

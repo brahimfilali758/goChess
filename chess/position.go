@@ -42,71 +42,87 @@ func (p *Position) ValidMoves() []Move {
 	for _, piece := range p.board.Pieces {
 		if piece.pieceType == knight {
 			for _, square := range CalcAvailableMovesKnight(piece.pos) {
-				if square.InBoard() && (p.board.GetPiece(square.rank, square.file) == nil || p.board.GetPiece(square.rank, square.file).color != piece.color) {
-					validMoves = append(validMoves, Move{piece, piece.pos, square})
+				if square.InBoard() {
+					if p.board.GetPiece(square.rank, square.file) == nil {
+						validMoves = append(validMoves, Move{piece, piece.pos, square, false})
+					} else if p.board.GetPiece(square.rank, square.file).color != piece.color {
+						validMoves = append(validMoves, Move{piece, piece.pos, square, true})
+					}
 				}
 			}
 		} else if piece.pieceType == rook {
-			for _, square := range CalcAvailableMovesRook(piece.pos) {
-				if square.InBoard() && (p.board.GetPiece(square.rank, square.file) == nil || p.board.GetPiece(square.rank, square.file).color != piece.color) {
-					validMoves = append(validMoves, Move{piece, piece.pos, square})
-
+			moves := p.board.VerHorLimits(piece.pos, piece.color)
+			for _, square := range moves {
+				if p.board.GetPiece(square.rank, square.file) == nil {
+						validMoves = append(validMoves, Move{piece, piece.pos, square, false})
+				} else if p.board.GetPiece(square.rank, square.file).color != piece.color {
+					validMoves = append(validMoves, Move{piece, piece.pos, square, true})
 				}
 			}
 		} else if piece.pieceType == queen {
-			for _, square := range CalcAvailableMovesQueen(piece.pos) {
-				if square.InBoard() && (p.board.GetPiece(square.rank, square.file) == nil || p.board.GetPiece(square.rank, square.file).color != piece.color) {
-					validMoves = append(validMoves, Move{piece, piece.pos, square})
+			moves := append(p.board.VerHorLimits(piece.pos, piece.color), p.board.DiagLimits(piece.pos, piece.color)...)
+			for _, square := range moves {
+				if p.board.GetPiece(square.rank, square.file) == nil {
+						validMoves = append(validMoves, Move{piece, piece.pos, square, false})
+				} else if p.board.GetPiece(square.rank, square.file).color != piece.color {
+					validMoves = append(validMoves, Move{piece, piece.pos, square, true})
 				}
 			}
 		} else if piece.pieceType == bishop {
-			for _, square := range CalcAvailableMovesBishop(piece.pos) {
-				if square.InBoard() && (p.board.GetPiece(square.rank, square.file) == nil || p.board.GetPiece(square.rank, square.file).color != piece.color) {
-					validMoves = append(validMoves, Move{piece, piece.pos, square})
+			moves := p.board.DiagLimits(piece.pos, piece.color)
+			for _, square := range moves {
+				if p.board.GetPiece(square.rank, square.file) == nil {
+						validMoves = append(validMoves, Move{piece, piece.pos, square, false})
+				} else if p.board.GetPiece(square.rank, square.file).color != piece.color {
+					validMoves = append(validMoves, Move{piece, piece.pos, square, true})
 				}
 			}
 		} else if piece.pieceType == king {
 			for _, square := range CalcAvailableMovesKing(piece.pos) {
-				if square.InBoard() && (p.board.GetPiece(square.rank, square.file) == nil || p.board.GetPiece(square.rank, square.file).color != piece.color) {
-					validMoves = append(validMoves, Move{piece, piece.pos, square})
+				if square.InBoard() {
+					if p.board.GetPiece(square.rank, square.file) == nil {
+						validMoves = append(validMoves, Move{piece, piece.pos, square, false})
+					} else if p.board.GetPiece(square.rank, square.file).color != piece.color {
+						validMoves = append(validMoves, Move{piece, piece.pos, square, true})
+					}
 				}
 			}
 		} else if piece.pieceType == pawn {
-			for _, square := range CalcAvailableMovesPawn(piece.pos, piece.color) {
-				if square.InBoard() && (p.board.GetPiece(square.rank, square.file) == nil || p.board.GetPiece(square.rank, square.file).color != piece.color) {
-					validMoves = append(validMoves, Move{piece, piece.pos, square})
-				}
-			}
+			// fmt.Println("Pawn moves are ", p.board.PawnMoves(piece))
+			validMoves = append(validMoves, p.board.PawnMoves(piece)...)
 		}
 	}
 	return validMoves
 }
 
-
 func (p *Position) CalcaLegalMoves(validMoves []Move) []Move {
 	legalMoves := make([]Move, 0)
 	// fmt.Println("piece valid moves are :")
 	// for _, move := range validMoves {
+	// 	if move.piece.pieceType == pawn {
 	// 		fmt.Println(move.piece.repr, move.start, move.end)
 	// 	}
+	// }
 	// empty pieces avaiblable moves
 	for _, piece := range p.board.Pieces {
 		piece.availableMoves = make([]Square, 0)
 	}
 	for _, move := range validMoves {
-		if move.piece.pieceType == knight {
-			pOnBoard := p.board.GetPiece(move.end.rank, move.end.file)
-			if pOnBoard == nil || pOnBoard.color != move.piece.color {
-				move.piece.availableMoves = append(move.piece.availableMoves, move.end)
-				legalMoves = append(legalMoves, move)
-			}
-		} else {
-			limits := p.board.Limits(move.piece.pos, move.piece.color)
-			if slices.Contains(limits, move.end) {
-				move.piece.availableMoves = append(move.piece.availableMoves, move.end)
-				legalMoves = append(legalMoves, move)
-			}
+		
+		pOnBoard := p.board.GetPiece(move.end.rank, move.end.file)
+		if pOnBoard == nil || pOnBoard.color != move.piece.color {
+			move.piece.availableMoves = append(move.piece.availableMoves, move.end)
+			legalMoves = append(legalMoves, move)
+			// fmt.Println("piece ", move.piece.repr, "available moves are ", move.piece.availableMoves)
 		}
+		
+		// } else {
+		// 	limits := p.board.VerHorLimits(move.piece.pos, move.piece.color)
+		// 	if slices.Contains(limits, move.end) {
+		// 		move.piece.availableMoves = append(move.piece.availableMoves, move.end)
+		// 		legalMoves = append(legalMoves, move)
+		// 	}
+		// }
 	}
 	return legalMoves
 }
@@ -124,6 +140,7 @@ func (p *Position) UpdatePosition(move Move) {
 			tmp = true
 		}
 	}
+	fmt.Println("Move is ,", move, "searched in ", legalMoves)
 	if tmp {
 		p.board.UpdateBoard(move)
 		fmt.Println("Move done !")

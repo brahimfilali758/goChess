@@ -28,7 +28,7 @@ func main() {
 		fmt.Println(position.GetPlayerTurn() ,"To move, Type move :")
 		fmt.Scanf("%s\n", &move)
 		fmt.Println("Scanf done with move ", move)
-		p_ , start , end := chess.GetMoveParams(move, *position)
+		p_ , start , end, capture := chess.GetMoveParams(move, *position)
 		p , startrank, startfile, endrank, endfile = "", 0, 0, 0, 0
 		p = p_
 		startfile = start.GetFile()
@@ -42,7 +42,7 @@ func main() {
 			fmt.Println(pieceToMove)
 			if pieceToMove != nil {
 				fmt.Println("Piece Found !!")
-				move := chess.NewMove(pieceToMove, *chess.NewSquare(int(startrank), int(startfile)), *chess.NewSquare(int(endrank), int(endfile)))
+				move := chess.NewMove(pieceToMove, *chess.NewSquare(int(startrank), int(startfile)), *chess.NewSquare(int(endrank), int(endfile)), capture)
 				position.UpdatePosition(*move)
 				board.PrintBoard()
 				// clear the screen

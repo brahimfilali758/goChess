@@ -91,9 +91,9 @@ func (b *Board) PrintBoard() {
 		for j := 1; j <= 8; j++ {
 			piece := b.GetPiece(i, j)
 			if piece != nil {
-				fmt.Printf(m[piece.repr])
+				fmt.Printf(m[piece.repr] + " ")
 			} else {
-				fmt.Print("-")
+				fmt.Print("- ")
 			}
 		}
 		fmt.Print("\n")
@@ -105,7 +105,7 @@ func (b *Board) UpdateBoard(move Move) {
 	// Update piece available moves with board
 	pieceDestination := b.GetPiece(move.end.rank, move.end.file)
 
-	// fmt.Println("Move is , ", move, " and destination is ", pieceDestination)
+	fmt.Println("UpdateBoard Move is , ", move, " and destination is ", pieceDestination)
 	if pieceDestination == nil {
 		// fmt.Println("Move done with destination square empty")
 		move.piece.HandlePieceMovement(move.end)
@@ -134,7 +134,7 @@ func (b *Board) GetPieceByRepr(repr string, pos Square) *Piece {
 	return nil
 }
 
-func (b *Board) Limits(pos Square, color Color) []Square {
+func (b *Board) VerHorLimits(pos Square, color Color) []Square {
 	// fmt.Println("Checking limits for ", pos, color)
 	emptySquares := make([]Square, 0)
 	
@@ -203,3 +203,114 @@ func (b *Board) Limits(pos Square, color Color) []Square {
 }
 
 
+
+ func (b *Board) DiagLimits(s Square, color Color) []Square {
+	availableMoves := make([]Square, 0)
+	// fmt.Println("CALCULATING DIAG MOVES FOR ", s)
+	rank := s.rank
+	file := s.file
+	for {
+		rank++
+		file++
+		pOnBoard := b.GetPiece(rank, file)
+		if rank > 8 || file > 8 {
+			break
+		}
+		if pOnBoard == nil {
+			availableMoves = append(availableMoves, Square{rank, file})
+		} else {
+			if pOnBoard.color != color {
+				availableMoves = append(availableMoves, Square{rank, file})
+			}
+			break
+		}
+	}
+	rank = s.rank
+	file = s.file
+	for {
+		rank++
+		file--
+		if rank > 8 || file < 1 {
+			break
+		}
+		pOnBoard := b.GetPiece(rank, file)
+		if pOnBoard == nil {
+			availableMoves = append(availableMoves, Square{rank, file})
+		} else {
+			if pOnBoard.color != color {
+				availableMoves = append(availableMoves, Square{rank, file})
+			}
+			break
+		}
+	}
+
+	rank = s.rank
+	file = s.file
+	for {
+		rank--
+		file++
+		if rank < 1 || file > 8 {
+			break
+		}
+		pOnBoard := b.GetPiece(rank, file)
+		if pOnBoard == nil {
+			availableMoves = append(availableMoves, Square{rank, file})
+		} else {
+			if pOnBoard.color != color {
+				availableMoves = append(availableMoves, Square{rank, file})
+			}
+			break
+		}
+	}
+	rank = s.rank
+	file = s.file
+	for {
+		rank--
+		file--
+		if rank < 1 || file < 1 {
+			break
+		}
+		pOnBoard := b.GetPiece(rank, file)
+		if pOnBoard == nil {
+			availableMoves = append(availableMoves, Square{rank, file})
+		} else {
+			if pOnBoard.color != color {
+				availableMoves = append(availableMoves, Square{rank, file})
+			}
+			break
+		}
+	}
+
+	return availableMoves
+}
+
+func (b *Board) PawnMoves(p *Piece) []Move {
+	availableMoves := make([]Move, 0)
+
+	var increment int
+	if p.color == Black {
+		increment = -1
+	} else {
+		increment = 1
+	}
+	// IN THE FIRST MOVE, PAWN can move 2 squares
+	if p.pos.rank == 7 || p.pos.rank == 2 && (b.GetPiece(p.pos.rank + 2*increment, p.pos.file) == nil) {
+		availableMoves = append(availableMoves, Move{p, p.pos, Square{p.pos.rank + 2*increment, p.pos.file}, false})
+	}
+	if b.GetPiece(p.pos.rank + 2*increment, p.pos.file) == nil {
+		availableMoves = append(availableMoves, Move{p, p.pos, Square{p.pos.rank + 1*increment, p.pos.file}, false})
+	}
+
+	// CAPTURE
+	capture_pos1 := Square{p.pos.rank + 1*increment, p.pos.file + 1*increment}
+	capture_pos2 := Square{p.pos.rank + 1*increment, p.pos.file - 1*increment}
+	if pOnboard := b.GetPiece(capture_pos1.rank, capture_pos1.file); pOnboard != nil && pOnboard.color != p.color {
+		availableMoves = append(availableMoves, Move{p, p.pos, capture_pos1, true})
+	}
+	if pOnboard := b.GetPiece(capture_pos2.rank, capture_pos2.file); pOnboard != nil && pOnboard.color != p.color {
+		availableMoves = append(availableMoves, Move{p, p.pos, capture_pos2, true})
+	}
+
+	// en passant
+	return availableMoves
+}

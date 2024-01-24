@@ -177,18 +177,12 @@ func CalcAvailableMovesKnight(pos Square) []Square {
 
 
 
-func  CalcAvailableMovesBishop(pos Square) []Square {
+func  CalcAvailableMovesBishop(pos Square, position Position) []Square {
 	// CalcAvailableMoves calculates the available legal moves for the Bishop.
 	//
 	// It does not take any parameters.
 	// It returns a slice of Square.
-	availableMoves := make([]Square, 0)
-	for rank := -1; rank <= 1; rank += 2 {
-		for file := -1; file <= 1; file += 2 {
-			availableMoves = append(availableMoves, Square{pos.rank + rank, pos.file + file})
-		}
-	}
-	return availableMoves
+	return DiagLimits(pos, position)
 }
 
 

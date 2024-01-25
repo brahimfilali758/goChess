@@ -297,10 +297,10 @@ func (b *Board) PawnMoves(p *Piece) []Move {
 	if p.pos.rank == 7 || p.pos.rank == 2 && (b.GetPiece(p.pos.rank + 2*increment, p.pos.file) == nil) {
 		availableMoves = append(availableMoves, Move{p, p.pos, Square{p.pos.rank + 2*increment, p.pos.file}, false})
 	}
-	if b.GetPiece(p.pos.rank + 2*increment, p.pos.file) == nil {
+	if b.GetPiece(p.pos.rank + 1*increment, p.pos.file) == nil {
 		availableMoves = append(availableMoves, Move{p, p.pos, Square{p.pos.rank + 1*increment, p.pos.file}, false})
 	}
-
+	
 	// CAPTURE
 	capture_pos1 := Square{p.pos.rank + 1*increment, p.pos.file + 1*increment}
 	capture_pos2 := Square{p.pos.rank + 1*increment, p.pos.file - 1*increment}

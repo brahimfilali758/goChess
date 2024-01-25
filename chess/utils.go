@@ -13,6 +13,9 @@ func PrintError(err error) {
 }
 
 func GetMoveParams(move string, p Position) (string, Square, Square, bool) {
+
+	pieces := []string{"R", "N", "B", "Q", "K"}
+	
 	var pieceRepr string
 	var start Square
 	var end Square
@@ -20,26 +23,24 @@ func GetMoveParams(move string, p Position) (string, Square, Square, bool) {
 	var file string
 	capture := false
 	if len(move) == 2 {
-		if p.playerTurn == White {
-			pieceRepr = "p"
-		} else {
-			pieceRepr = "P"
-		}
+		pieceRepr = GetPieceRepr("p", p.playerTurn)
 		rank = string(move[1])
 		file = string(move[0])
-		
 	} else if len(move) == 3 {
-		pieceRepr = move[:1]
+		pieceRepr = GetPieceRepr(move[:1], p.playerTurn)
 		rank = string(move[2])
 		file = string(move[1])
 		fmt.Println("move len 3 , piece ", pieceRepr, " rank ", rank, " file ", file)
 	} else if len(move) == 4 && strings.Contains(move, "x") {
-		pieceRepr = move[:1]
+		if slices.Contains(pieces, move[:1]) {
+			pieceRepr = GetPieceRepr(move[:1], p.playerTurn)
+		} else {
+			pieceRepr = GetPieceRepr("p", p.playerTurn)
+		}
 		rank = string(move[3])
 		file = string(move[2])
 		capture = true
 	}
-
 	end = *NewSquare(int(rank[0] - '0'), int(file[0] - 'a') + 1)
 	for _ , piece := range p.board.Pieces {
 		if piece.repr == pieceRepr {
@@ -136,3 +137,11 @@ func DiagLimits(s Square, position Position) []Square {
 	return availableMoves
 }
 
+
+func GetPieceRepr(s string, color Color) string {
+	if color == White {
+		return strings.ToLower(s)
+	} else {
+		return strings.ToUpper(s)
+	}
+}

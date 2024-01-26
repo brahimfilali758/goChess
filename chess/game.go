@@ -27,3 +27,4 @@ func NewGame(p1 *Player, p2 *Player) *Game {
 func (g *Game) GetBorad() *Board {
 	return g.board
 }
+

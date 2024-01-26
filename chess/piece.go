@@ -7,6 +7,13 @@ import (
 type PieceType uint16
 type Color uint8
 
+func (p Color) Swap() Color {
+	if p == White {
+		return Black
+	}
+	return White
+}
+
 const (
 	nopiece = iota
 	pawn 
@@ -223,26 +230,29 @@ func CalcAvailableMovesKing(pos Square) []Square {
 	//
 	// It does not take any parameters.
 	// It returns a slice of Square.
-	availableMoves := make([]Square, 0)
-	for file := 1; file < 9; file++ {
-		availableMoves = append(availableMoves, Square{pos.rank, file})
-	}
-	for rank := 1; rank < 9; rank++ {
-		availableMoves = append(availableMoves, Square{rank, pos.file})
+	availableMoves := []Square{
+		{pos.rank - 1, pos.file - 1},
+		{pos.rank - 1, pos.file},
+		{pos.rank - 1, pos.file + 1},
+		{pos.rank, pos.file - 1},
+		{pos.rank, pos.file + 1},
+		{pos.rank + 1, pos.file - 1},
+		{pos.rank + 1, pos.file},
+		{pos.rank + 1, pos.file + 1},
 	}
 	return availableMoves
 }
 
 func (piece *Piece) HandlePieceMovement(destination Square) {
+	fmt.Println("Piece" , piece ," moved to ", destination)		
 	piece.pos = destination
-	fmt.Println("Piece moved to ", destination)		
 }
 
 
 
 
 func (p *Piece) CalcaLegalMoves(b *Board) {
-	fmt.Println("CalcaLegalMoves with length ", len(p.availableMoves), " and ", p.availableMoves)
+	// fmt.Println("CalcaLegalMoves with length ", len(p.availableMoves), " and ", p.availableMoves)
 	legalMoves := make([]Square, 0)
 	for _, square := range p.availableMoves {
 		if square.InBoard() && (b.GetPiece(square.rank, square.file) == nil || b.GetPiece(square.rank, square.file).color != p.color) {

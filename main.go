@@ -35,15 +35,20 @@ func main() {
 		startrank = start.GetRank()
 		endfile = end.GetFile()
 		endrank = end.GetRank()
-		// fmt.Println("Enter piece startrank startfile endrank endfile")
-		// fmt.Scanf("%s %d %d %d %d",&p, &startrank, &startfile, &endrank, &endfile)
 		if p != "" && startrank != 0 && startfile != 0 && endrank != 0 && endfile != 0 {
 			pieceToMove := board.GetPieceByRepr(p, *chess.NewSquare(int(startrank), int(startfile)))
 			fmt.Println(pieceToMove)
 			if pieceToMove != nil {
 				fmt.Println("Piece Found !!")
 				move := chess.NewMove(pieceToMove, *chess.NewSquare(int(startrank), int(startfile)), *chess.NewSquare(int(endrank), int(endfile)), capture)
-				position.UpdatePosition(*move)
+				fmt.Println("Updating position")
+				err := position.UpdatePosition(*move)
+				if position.InCheck() {
+					position.CalcMovesToStopCheck()
+				}
+				if err == nil {
+					position.SwapTurn()
+				}
 				board.PrintBoard()
 				// clear the screen
 				fmt.Print("\033[H\033[2J")

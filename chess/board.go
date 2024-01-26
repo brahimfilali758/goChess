@@ -6,8 +6,8 @@ import (
 
 
 var m  = map[string]string {
-	"p": "♟",
-	"P": "♙",
+	"p": "♙",
+	"P": "♟",
 	"r": "♜",
 	"R": "♖",
 	"n": "♞",
@@ -22,7 +22,7 @@ var m  = map[string]string {
 
 type Board struct {
 	// The pieces on the board
-	Pieces []*Piece
+	Pieces map[Square]*Piece
 	isChecked bool
 	whiteKing *Piece
 	blackKing *Piece
@@ -31,7 +31,7 @@ type Board struct {
 // create a new board
 func NewBoard() *Board {
 	return &Board{
-		Pieces: make([]*Piece, 0),
+		Pieces: make(map[Square]*Piece),
 		isChecked: false,
 		whiteKing: nil,
 		blackKing: nil,	
@@ -39,15 +39,16 @@ func NewBoard() *Board {
 }
 
 // add a piece to the board
-func (b *Board) AddPiece(p Piece) {
-	b.Pieces = append(b.Pieces, &p)
+func (b *Board) AddPiece(p *Piece) {
+	b.Pieces[p.pos] = p
 }
+
 
 // remove a piece from the board
 func (b *Board) RemovePiece(p *Piece) {
 	for i, piece := range b.Pieces {
 		if piece == p {
-			b.Pieces = append(b.Pieces[:i], b.Pieces[i+1:]...)
+			delete(b.Pieces, i)
 			return
 		}
 	}
@@ -55,10 +56,9 @@ func (b *Board) RemovePiece(p *Piece) {
 
 // get a piece from the board
 func (b *Board) GetPiece(i int, j int) *Piece {
-	for _, piece := range b.Pieces {
-		if piece.pos.rank == i && piece.pos.file == j {
-			return piece
-		}
+	val , ok := b.Pieces[Square{i, j}]
+	if ok {
+		return val
 	}
 	return nil
 }
@@ -73,18 +73,7 @@ func (b *Board) GetPiecePosition(repr string) []Square {
 	return positions
 }
 
-func (b *Board) CalcIsChecked(move *Move) {
-	color := move.piece.color
-	if color == White {
-		if move.end == b.blackKing.pos {
-			b.isChecked = true
-		}
-	} else if color == Black {
-		if move.end == b.whiteKing.pos {
-			b.isChecked = true
-		}
-	}	
-}
+
 
 func (b *Board) PrintBoard() {
 	for i := 8; i > 0; i-- {
@@ -105,23 +94,36 @@ func (b *Board) UpdateBoard(move Move) {
 	// Update piece available moves with board
 	pieceDestination := b.GetPiece(move.end.rank, move.end.file)
 
-	fmt.Println("UpdateBoard Move is , ", move, " and destination is ", pieceDestination)
+	// fmt.Println("UpdateBoard Move is , ", move, " and destination is ", pieceDestination)
 	if pieceDestination == nil {
 		// fmt.Println("Move done with destination square empty")
-		move.piece.HandlePieceMovement(move.end)
-		return
+		delete(b.Pieces, move.start)
+		b.Pieces[move.end] = move.piece
+		b.HandlePieceMovement(move.piece, move.end)
 	} else {
-		if move.piece.color != pieceDestination.color{
+		if move.piece.color != pieceDestination.color && move.capture {
 			fmt.Println("Move done with capture")
 			// capture destination piece
-			b.RemovePiece(pieceDestination)
-			move.piece.HandlePieceMovement(move.end)
-			return
+			delete(b.Pieces, move.end)
+			delete(b.Pieces, move.start)
+			b.Pieces[move.end] = move.piece
+			b.HandlePieceMovement(move.piece, move.end)
 		} else {
 			fmt.Println("Move impossible !") 
-			return
 		}
 	} 
+}
+
+func (b *Board) HandlePieceMovement(piece *Piece, destination Square) {
+	piece.HandlePieceMovement(destination)
+	if piece.pieceType == king {
+		fmt.Println("HandlePieceMovement of King")
+		if piece.color == White {
+			b.whiteKing = piece
+		} else {
+			b.blackKing = piece
+		}
+	}
 }
 
 func (b *Board) GetPieceByRepr(repr string, pos Square) *Piece {
@@ -300,7 +302,7 @@ func (b *Board) PawnMoves(p *Piece) []Move {
 	if b.GetPiece(p.pos.rank + 1*increment, p.pos.file) == nil {
 		availableMoves = append(availableMoves, Move{p, p.pos, Square{p.pos.rank + 1*increment, p.pos.file}, false})
 	}
-	
+
 	// CAPTURE
 	capture_pos1 := Square{p.pos.rank + 1*increment, p.pos.file + 1*increment}
 	capture_pos2 := Square{p.pos.rank + 1*increment, p.pos.file - 1*increment}
@@ -313,4 +315,20 @@ func (b *Board) PawnMoves(p *Piece) []Move {
 
 	// en passant
 	return availableMoves
+}
+
+func (b *Board) CopyBoard() *Board {
+	newBoard := NewBoard()
+	for pos, piece := range b.Pieces {
+		newBoard.Pieces[pos] = piece
+		if piece.pieceType == king {
+			if piece.color == White {
+				newBoard.whiteKing = NewPiece(king, pos, White)
+			} else {
+				newBoard.blackKing = NewPiece(king, pos, Black)
+			}
+		}
+	}
+	newBoard.isChecked = b.isChecked
+	return newBoard
 }

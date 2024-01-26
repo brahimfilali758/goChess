@@ -15,7 +15,7 @@ func PrintError(err error) {
 func GetMoveParams(move string, p Position) (string, Square, Square, bool) {
 
 	pieces := []string{"R", "N", "B", "Q", "K"}
-	
+	fmt.Println("p.playerTurn", p.playerTurn)
 	var pieceRepr string
 	var start Square
 	var end Square
@@ -59,7 +59,7 @@ func GetMoveParams(move string, p Position) (string, Square, Square, bool) {
 
 func DiagLimits(s Square, position Position) []Square {
 	availableMoves := make([]Square, 0)
-	fmt.Println("CALCULATING DIAG MOVES FOR ", s)
+	// fmt.Println("CALCULATING DIAG MOVES FOR ", s)
 	rank := s.rank
 	file := s.file
 	for {

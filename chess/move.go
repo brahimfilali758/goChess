@@ -1,5 +1,7 @@
 package chess
 
+import "fmt"
+
 type Move struct {
 	piece   *Piece
 	start   Square
@@ -14,4 +16,8 @@ func NewMove(piece *Piece, start Square, end Square, capture bool) *Move {
 		end:     end,
 		capture: capture,
 	}
+}
+
+func (m *Move) String() string { 
+	return fmt.Sprintf("%s : start:{%d} end:{%d}", m.piece.repr, m.start, m.end)
 }
